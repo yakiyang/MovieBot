@@ -2,6 +2,7 @@ from transitions.extensions import GraphMachine
 import tmdbsimple as tmdb
 tmdb.API_KEY = '164de636f92ccc9e6587bf118fb26d8d'
 string = ''
+movie_id=0
 
 class TocMachine(GraphMachine):
     def __init__(self, **machine_configs):
@@ -85,6 +86,27 @@ class TocMachine(GraphMachine):
             check=1
         return check
     
+    def is_going_to_state11(self, update):
+        text = update.message.text
+        if "video" in text.lower() or "trailer" in text.lower():
+            return 1
+        elif 'return' in text.lower():
+            self.go_back(update)
+    
+    def is_going_to_state12(self, update):
+        text = update.message.text
+        if "similar" in text.lower():
+            return 1
+        elif 'return' in text.lower():
+            self.go_back(update)
+    
+    def is_going_to_state13(self, update):
+        text = update.message.text
+        if "image" in text.lower() or "picture" in text.lower() or "photo" in text.lower():
+            return 1
+        elif 'return' in text.lower():
+            self.go_back(update)
+    
     def on_enter_state1(self, update):
         search = tmdb.Search()
         response = search.movie(query=string)
@@ -100,7 +122,7 @@ class TocMachine(GraphMachine):
     def on_enter_state2(self, update):
         movie = tmdb.Movies()
         response = movie.upcoming()
-        lists=response['results']
+        lists=response['results'][0:5]
         msg='There are several movies upcoming now.\n\n'
         update.message.reply_text(msg)
         for s in lists:
@@ -118,7 +140,7 @@ class TocMachine(GraphMachine):
     def on_enter_state3(self, update):
         movie = tmdb.Movies()
         response = movie.now_playing()
-        lists=response['results']
+        lists=response['results'][0:10]
         msg='There are several movies playing now.\n\n'
         update.message.reply_text(msg)
         for s in lists:
@@ -164,7 +186,7 @@ class TocMachine(GraphMachine):
     def on_enter_state6(self, update):
         movie = tmdb.Movies()
         response = movie.popular()
-        lists=response['results']
+        lists=response['results'][0:5]
         msg='This are several popular movies recently\n\n'
         update.message.reply_text(msg)
         for s in lists:
@@ -192,6 +214,7 @@ class TocMachine(GraphMachine):
         msg=''
         for s in lists:
             if s['title'].lower() == string:
+                global movie_id
                 movie_id=s['id']
                 info = tmdb.Movies(movie_id).info()
                 msg='https://image.tmdb.org/t/p/w500'
@@ -221,15 +244,8 @@ class TocMachine(GraphMachine):
                 for a in country:
                     msg=msg+a['name']+'\n'
                 update.message.reply_text(msg)
-                response1 = tmdb.Movies(movie_id).similar_movies()
-                similar = response1['results']
-                msg='Similar movies:\n'
-                update.message.reply_text(msg)
-                for s1 in similar:
-                    msg='https://image.tmdb.org/t/p/w500'
-                    msg=msg+s1['poster_path']
-                    update.message.reply_photo(msg)
-        self.go_back(update)
+                
+                update.message.reply_text('\n\n\nIf you want to know more about this movie\nenter movie video or movie trailer to see the movie trailer\nenter movie photo or movie picture to see more photo\nenter similar movie to see get some similar movie\nIf you don\'t need more information\nenter return')
     
     def on_exit_state8(self, update):
         print('Leaving state8')
@@ -247,6 +263,7 @@ class TocMachine(GraphMachine):
         msg=''
         for s in lists:
             if s['title'].lower() == string:
+                global movie_id
                 movie_id=s['id']
                 info = tmdb.Movies(movie_id).info()
                 msg='https://image.tmdb.org/t/p/w500'
@@ -276,15 +293,54 @@ class TocMachine(GraphMachine):
                 for a in country:
                     msg=msg+a['name']+'\n'
                 update.message.reply_text(msg)
-                response1 = tmdb.Movies(movie_id).similar_movies()
-                similar = response1['results']
-                msg='Similar movies:\n'
-                update.message.reply_text(msg)
-                for s1 in similar:
-                    msg='https://image.tmdb.org/t/p/w500'
-                    msg=msg+s1['poster_path']
-                    update.message.reply_photo(msg)
-        self.go_back(update)
-    
+                
+                update.message.reply_text('\n\n\nIf you want to know more about this movie\nenter movie video or movie trailer to see the movie trailer\nenter movie photo or movie picture to see more photo\nenter similar movie to see get some similar movie\nIf you don\'t need more information\nenter return')
+
     def on_exit_state10(self, update):
         print('Leaving state10')
+    
+    def on_enter_state11(self, update):
+        response = tmdb.Movies(movie_id).videos()
+        videos = response['results']
+        s=videos[0]
+        msg='https://www.youtube.com/watch?v='
+        msg=msg+s['key']
+        update.message.reply_text(msg)
+        self.go_back(update)
+    
+    def on_exit_state11(self, update):
+        print('Leaving state11')
+    
+    def on_enter_state12(self, update):
+        response = tmdb.Movies(movie_id).similar_movies()
+        similar = response['results'][0:5]
+        msg='Similar movies:\n'
+        update.message.reply_text(msg)
+        for s in similar:
+            msg='https://image.tmdb.org/t/p/w500'
+            msg=msg+s['poster_path']
+            update.message.reply_photo(msg)
+            msg=s['title'] 
+            update.message.reply_text(msg)
+        self.go_back(update)
+
+    def on_exit_state12(self, update):
+        print('Leaving state12')
+    
+    def on_enter_state13(self, update):
+        response = tmdb.Movies(movie_id).images()
+        images = response['backdrops'][0:10]
+        for s in images:
+            msg='https://image.tmdb.org/t/p/w500'
+            msg=msg+s['file_path']
+            update.message.reply_photo(msg)
+        self.go_back(update)
+    
+    def on_exit_state13(self, update):
+        print('Leaving state13')
+    
+    def on_enter_state14(self, update):
+        update.message.reply_text('\n\n\nIf you want to know more about this movie\nenter movie video or movie trailer to see the movie trailer\nenter movie photo or movie picture to see more photo\nenter similar movie to see get some similar movie\nIf you don\'t need more information\nenter return')
+    
+    def on_exit_state14(self, update):
+        print('Leaving state14')
