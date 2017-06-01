@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # MovieBot
 
 A telegram movie bot based on a finite state machine ,can search movies and tell you the movies playing now or the movies upcoming ,even recommend you some popular movies
@@ -69,6 +68,4 @@ Every time `user` state is triggered to `advance` to another state, it will `go_
                 * Reply: The most popular movie in the theater now
             * if`no`
                 * Reply: Some popular movies recently
-=======
-# MovieBot
->>>>>>> b239ef4d3d4715b45ae629a9672e529b4235ee8a
+
