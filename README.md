@@ -36,19 +36,24 @@ python3 app.py
 ## Usage
 The initial state is set to `user`.
 
-Every time `user` state is triggered to `advance` to another state, it will `go_back` to `user` state after the bot replies corresponding message.
-
 * user
-    * Input: "Search "keyword""
-        * Reply: list the movies name that contain "keyword"
+    * Input: "Search `keyword`"
+        * Reply: list the movies name that contain `keyword`
 
     * Input: "What's the movie palying now?"
         * Reply: list the movies that playing in the theater now and ask "Do you want to get more information?(YES or NO)"
         * Input: `yes` or `no`
             * if  `yes`  
                 * Reply: "Which movie do you want to know?(enter a movie name)"
-                * Input: A movie name (list above)
-                * Reply: Some information of the movie
+                * Input: A movie `name` (list above)
+                * Reply: Some information of the movie and ask
+"If you want to know more about this movie
+enter movie video or movie trailer to see the movie trailer
+enter movie photo or movie picture to see more photo
+enter similar movie to see get some similar movie
+If you don't need more information
+enter return"
+                * Input: "`video` or `photo` or `similar`" until `return`
             * if`no`
                 * return to user
     * Input: "What's the movie upcoming?"
@@ -56,8 +61,15 @@ Every time `user` state is triggered to `advance` to another state, it will `go_
         * Input: `yes` or `no`
             * if  `yes`  
                 * Reply: "Which movie do you want to know?(enter a movie name)"
-                * Input: A movie name (list above)
-                * Reply: Some information of the movie
+                * Input: A movie `name` (list above)
+                * Reply: Some information of the movie and ask
+"If you want to know more about this movie
+enter movie video or movie trailer to see the movie trailer
+enter movie photo or movie picture to see more photo
+enter similar movie to see get some similar movie
+If you don't need more information
+enter return"
+                * Input: "`video` or `photo` or `similar`" until `return`
             * if`no`
                 * return to user
 
